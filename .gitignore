@@ -4,3 +4,4 @@ yarn*
 .DS_Store
 .idea
 .vscode
+bower_components
