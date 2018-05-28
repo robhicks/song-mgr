@@ -1,0 +1,37 @@
+version: "2"
+plugins:
+  csslint:
+    enabled: true
+  duplication:
+    config:
+      languages:
+        javascript:
+          mass_threshold: 100
+  eslint:
+    enabled: true
+    channel: "eslint-3"
+    config:
+      extensions:
+        - .es6
+        - .js
+        - .mjs
+      ignore_warnings: true
+  fixme:
+    enabled: true
+    config:
+      strings:
+      - FIXME
+  shellcheck:
+    enabled: true
+exclude_patterns:
+- ".*"
+- "dist/"
+- "demo/"
+- "svgs/"
+- "dev-server.js"
+- "mocha-headless-chrome-live-test-server.js"
+- "mocha-headless-chrome-static-test-server.js"
+- "rollup.config.js"
+- "**/*.demo.js"
+- "**/*.sketch"
+- "**/node_modules/"
