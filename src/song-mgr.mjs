@@ -133,6 +133,69 @@ class SongMgr extends HTMLElement {
     .then(() => this.render());
   }
 
+  artist(artist) {
+    return wire(artist)`
+    <div class="artist">
+      <div class="left">
+        <h2>${artist.firstname} ${artist.lastname}</h2>
+        <div class="the-dash">
+          ${artist.birth.toLocaleString('en', {year: 'numeric', month: '2-digit', day: 'numeric'})} -
+          ${artist.death.toLocaleString('en', {year: 'numeric', month: '2-digit', day: 'numeric'})}
+        </div>
+        <div class="country">${artist.country}</div>
+        <div class="likes">
+          <button name="artist-like" uid="${artist.uid}" onclick="${this}">
+            <img src="../src/thumbs-up-right.svg"></img>
+            ${artist.likes}
+          </button>
+          <button name="artist-dislike" uid="${artist.uid}" onclick="${this}">
+            <img src="../src/thumbs-down-right.svg"></img>
+            ${artist.dislikes}
+          </button>
+          <button uid="${artist.uid}" name="artist-favorite" onclick="${this}">
+            <img class="${artist.favorite === true ? '' : 'hidden'}" src="../src/favorite.selected.svg"></img>
+            <img class="${artist.favorite !== true ? '' : 'hidden'}" src="../src/favorite.unselected.svg"></img>
+          </button>
+        </div>
+      </div>
+      <div class="right">
+        <img src="${artist.picture}"></img>
+      </div>
+    </div>
+    `;
+  }
+
+  track(track) {
+    return wire(track)`
+    <div class="track">
+      <div class="left">
+        <h2>${song.name}</h2>
+        <div class="tagline">${song.tagline}</div>
+        <div class="artist">${song.artist.firstname} ${song.artist.lastname}</div>
+        <div class="released">${song.releaseDate.toLocaleString('en', {year: 'numeric', month: '2-digit', day: 'numeric'})}</div>
+        <div class="label">${song.label}</div>
+        <div class="likes">
+          <button name="song-like" uid="${song.uid}" onclick="${this}">
+            <img src="../src/thumbs-up-right.svg"></img>
+            ${song.likes}
+          </button>
+          <button name="song-dislike" uid="${song.uid}" onclick="${this}">
+            <img src="../src/thumbs-down-right.svg"></img>
+            ${song.dislikes}
+          </button>
+          <button uid="${song.uid}" name="song-favorite" onclick="${this}">
+            <img class="${song.favorite === true ? '' : 'hidden'}" src="../src/favorite.selected.svg"></img>
+            <img class="${song.favorite !== true ? '' : 'hidden'}" src="../src/favorite.unselected.svg"></img>
+          </button>
+        </div>
+      </div>
+      <div class="right">
+        <img src="${song.image}"></img>
+      </div>
+    </div>
+    `;
+  }
+
   render() {
     hyper(this.shadowRoot)`
     <style>${css}</style>
@@ -142,65 +205,10 @@ class SongMgr extends HTMLElement {
     `)}
     </nav>
     <section id="tracks" class="${this.activeType() === 'tracks' ? '' : 'hidden'}">
-      ${Array.isArray(this.songs) ? this.songs.map(song => wire()`
-        <div class="track">
-          <div class="left">
-            <h2>${song.name}</h2>
-            <div class="tagline">${song.tagline}</div>
-            <div class="artist">${song.artist.firstname} ${song.artist.lastname}</div>
-            <div class="released">${song.releaseDate.toLocaleString('en', {year: 'numeric', month: '2-digit', day: 'numeric'})}</div>
-            <div class="label">${song.label}</div>
-            <div class="likes">
-              <button name="song-like" uid="${song.uid}" onclick="${this}">
-                <img src="../src/thumbs-up-right.svg"></img>
-                ${song.likes}
-              </button>
-              <button name="song-dislike" uid="${song.uid}" onclick="${this}">
-                <img src="../src/thumbs-down-right.svg"></img>
-                ${song.dislikes}
-              </button>
-              <button uid="${song.uid}" name="song-favorite" onclick="${this}">
-                <img class="${song.favorite === true ? '' : 'hidden'}" src="../src/favorite.selected.svg"></img>
-                <img class="${song.favorite !== true ? '' : 'hidden'}" src="../src/favorite.unselected.svg"></img>
-              </button>
-            </div>
-          </div>
-          <div class="right">
-            <img src="${song.image}"></img>
-          </div>
-        </div>
-      `) : ''}
+      ${Array.isArray(this.songs) ? this.songs.map(song => this.track(song)) : '';
     </section>
     <section id="artists" class="${this.activeType() === 'artists' ? '' : 'hidden'}">
-      ${Array.isArray(this.artists) ? this.artists.map(artist => wire()`
-        <div class="artist">
-          <div class="left">
-            <h2>${artist.firstname} ${artist.lastname}</h2>
-            <div class="the-dash">
-              ${artist.birth.toLocaleString('en', {year: 'numeric', month: '2-digit', day: 'numeric'})} -
-              ${artist.death.toLocaleString('en', {year: 'numeric', month: '2-digit', day: 'numeric'})}
-            </div>
-            <div class="country">${artist.country}</div>
-            <div class="likes">
-              <button name="artist-like" uid="${artist.uid}" onclick="${this}">
-                <img src="../src/thumbs-up-right.svg"></img>
-                ${artist.likes}
-              </button>
-              <button name="artist-dislike" uid="${artist.uid}" onclick="${this}">
-                <img src="../src/thumbs-down-right.svg"></img>
-                ${artist.dislikes}
-              </button>
-              <button uid="${artist.uid}" name="artist-favorite" onclick="${this}">
-                <img class="${artist.favorite === true ? '' : 'hidden'}" src="../src/favorite.selected.svg"></img>
-                <img class="${artist.favorite !== true ? '' : 'hidden'}" src="../src/favorite.unselected.svg"></img>
-              </button>
-            </div>
-          </div>
-          <div class="right">
-            <img src="${artist.picture}"></img>
-          </div>
-        </div>
-      `) : ''}
+      ${Array.isArray(this.artists) ? this.artists.map(artist => this.artist(artist)) : ''}
     </section>
     `;
   }
