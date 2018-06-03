@@ -165,8 +165,8 @@ class SongMgr extends HTMLElement {
     `;
   }
 
-  track(track) {
-    return wire(track)`
+  track(song) {
+    return wire(song)`
     <div class="track">
       <div class="left">
         <h2>${song.name}</h2>
@@ -205,7 +205,7 @@ class SongMgr extends HTMLElement {
     `)}
     </nav>
     <section id="tracks" class="${this.activeType() === 'tracks' ? '' : 'hidden'}">
-      ${Array.isArray(this.songs) ? this.songs.map(song => this.track(song)) : '';
+      ${Array.isArray(this.songs) ? this.songs.map(song => this.track(song)) : ''}
     </section>
     <section id="artists" class="${this.activeType() === 'artists' ? '' : 'hidden'}">
       ${Array.isArray(this.artists) ? this.artists.map(artist => this.artist(artist)) : ''}
