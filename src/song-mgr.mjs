@@ -1,40 +1,91 @@
 import { clone } from './clone.mjs';
-import {db } from './db.mjs';
-import {getArtists, getSongs} from './getData.mjs';
+import { db } from './db.mjs';
+import { getArtists, getSongs } from './getData.mjs';
 import css from './song-mgr.styl';
 import nav from './nav.mjs';
-
-const {bind, hyper, wire} = hyperHTML;
+import { html, render } from '../node_modules/lit-html/lib/lit-extended.js';
 
 class SongMgr extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({mode: 'open'});
+    this.attachShadow({ mode: 'open' });
     this._songs = [];
     this._artists = [];
     this.getData();
   }
-
-  attributeChangedCallback(name, oVal, nVal) {
-    if (nVal && !(/{{|_hyper/).test(nVal) && nVal !== oVal) {
-      console.log('name', name);
-    }
-  }
-
-  connectedCallback() {
-    this.render();
-  }
-
-  disconnectedCallback() {}
 
   activeType() {
     let activeTab = nav.find(n => n.active);
     return activeTab.id.includes('tracks') ? 'tracks' : 'artists';
   }
 
-  getData(filter) {
-    this.artists = this.getArtists();
-    this.songs = this.getSongs();
+  artist(artist) {
+    return html`
+    <div class="artist">
+      <div class="left">
+        <h2>${artist.firstname} ${artist.lastname}</h2>
+        <div class="the-dash">
+          ${artist.birth.toLocaleString('en', { year: 'numeric', month: '2-digit', day: 'numeric' })} -
+          ${artist.death.toLocaleString('en', { year: 'numeric', month: '2-digit', day: 'numeric' })}
+        </div>
+        <div class="country">${artist.country}</div>
+        <div class="likes">
+          <button name="artist-like" uid="${artist.uid}" onclick="${this.like.bind(this, artist)}">
+            <img src="../src/thumbs-up-right.svg"></img>
+            ${artist.likes}
+          </button>
+          <button name="artist-dislike" uid="${artist.uid}" onclick="${this.dislike.bind(this, artist)}">
+            <img src="../src/thumbs-down-right.svg"></img>
+            ${artist.dislikes}
+          </button>
+          <button uid="${artist.uid}" name="artist-favorite" onclick="${this.toggleFavorite.bind(this, artist)}">
+            ${artist.favorite === true ? html`
+              <img src="../src/favorite.selected.svg"></img>
+            ` : html`
+              <img src="../src/favorite.unselected.svg"></img>
+            `}
+          </button>
+        </div>
+      </div>
+      <div class="right">
+        <img src="${artist.picture}"></img>
+      </div>
+    </div>
+    `;
+  }
+
+  attributeChangedCallback(name, oVal, nVal) {
+    if (nVal && !/{{|_hyper/.test(nVal) && nVal !== oVal) {
+      console.log('name', name);
+    }
+  }
+
+  connectedCallback() {
+    this.render();
+    this.shadowRoot.querySelector('#tracks').classList.add('active');
+  }
+
+  dislike(thing) {
+    thing.dislikes++;
+    this.syncNav();
+    this.render();
+    this.save(thing);
+  }
+
+  disconnectedCallback() {}
+
+  changeNav(ev) {
+    let navItems = this.shadowRoot.querySelectorAll('button.nav');
+    navItems.forEach(ni => ni.classList.remove('active'))
+    const target = ev.currentTarget;
+    const id = target.id;
+    nav.forEach(n => n.active = false);
+    let selected = nav.find(n => n.id === id);
+    selected.active = true;
+    target.classList.add('active');
+    if (/tracks/.test(selected.id)) this.getSongs(selected.id);
+    if (/artists/.test(selected.id)) this.getArtists(selected.id);
+    this.render();
   }
 
   async getArtists(filter = 'artists') {
@@ -42,6 +93,11 @@ class SongMgr extends HTMLElement {
     if (filter === 'favoriteartists') this.artists = artists.filter(a => a.favorite === true);
     else this.artists = artists;
     this.syncNav();
+  }
+
+  getData(filter) {
+    this.artists = this.getArtists();
+    this.songs = this.getSongs();
   }
 
   async getSongs(filter = 'tracks') {
@@ -53,139 +109,97 @@ class SongMgr extends HTMLElement {
     this.syncNav();
   }
 
-  handleEvent(ev) {
-    let target = ev.currentTarget;
-    let uid = target.getAttribute('uid');
-    if (target.classList.contains('nav')) {
-      nav.forEach(ni => ni.id === target.id ? ni.active = true : ni.active = false);
-      let active = nav.find(n => n.active === true);
-      if (/tracks/.test(active.id)) this.getSongs(active.id);
-      if (/artists/.test(active.id)) this.getArtists(active.id);
-    }
-    if (target.name === 'song-like' || target.name === 'song-dislike') {
-      let song = this.songs.find(s => s.uid === uid);
-      if (target.name === 'song-like') song.likes++;
-      else song.dislikes++;
-      db.get('songs')
-        .then(songs => {
-          let dbSong = songs.find(s => s.uid === uid);
-          Object.assign(dbSong, clone(song));
-          return songs;
-        })
-        .then(songs => db.put('songs', songs));
-      ;
-    }
-    if (target.name === 'artist-like' || target.name === 'artist-dislike') {
-      let artist = this.artists.find(a => a.uid === uid);
-      if (target.name === 'artist-like') artist.likes++;
-      else artist.dislikes++;
-      db.get('artists')
-        .then(artists => {
-          let dbArtist = artists.find(a => a.uid === uid);
-          Object.assign(dbArtist, clone(artist));
-          return artists;
-        })
-        .then(artists => db.put('artists', artists));
-      ;
-    }
-    if (target.name === "song-favorite") {
-      let song = this.songs.find(s => s.uid === uid)
-      song.favorite = !song.favorite;
-      db.get('songs').then(songs => {
-        let dbSong = songs.find(s => s.uid === uid);
-        Object.assign(dbSong, clone(song));
-        return songs;
-      })
-      .then(songs => db.put('songs', songs));
-    }
-    if (target.name === "artist-favorite") {
-      let artist = this.artists.find(a => a.uid === uid)
-      artist.favorite = !artist.favorite;
-      db.get('artists').then(artists => {
-        let dbArtist = artists.find(a => a.uid === uid);
-        Object.assign(dbArtist, clone(artist));
-        return artists;
-      })
-      .then(artists => db.put('artists', artists));
-    }
+  like(thing) {
+    thing.likes++;
     this.syncNav();
+    this.render();
+    this.save(thing);
+  }
+
+  render() {
+    const template = html`
+    <style>${css}</style>
+    <nav>
+    ${nav.map(n => html`
+      <button class="nav" name="${n.id}" id="${n.id}" onclick="${this.changeNav.bind(this)}">${n.name} (${n.number})</button>
+    `
+    )}
+    </nav>
+    ${this.activeType() === 'tracks'
+      ? html`
+      <section id="tracks">
+        ${Array.isArray(this.songs) ? this.songs.map(song => this.track(song)) : ''}
+      </section>
+      `
+      : html`
+      <section id="artists">
+        ${Array.isArray(this.artists) ? this.artists.map(artist => this.artist(artist)) : ''}
+      </section>
+      `
+    }
+    `;
+    render(template, this.shadowRoot);
   }
 
   async syncArtists() {
     this.songs.forEach(s => {
       let artist = this.artists.find(a => a.uid === s.artistId);
       s.artist = artist;
+    });
+  }
+
+  save(thing) {
+    const keys = Object.keys(thing);
+    let type;
+    if (keys.includes('firstname')) type = 'artists';
+    else type = 'songs';
+
+    db
+    .get(type)
+    .then(items => {
+      let item = items.find(i => i.uid === thing.uid);
+      Object.assign(item, clone(thing));
+      return items;
     })
+    .then(items => db.put(type, items));
   }
 
   syncNav() {
-    return Promise.all([
-      db.get('songs'),
-      db.get('artists')
-    ])
-    .then(results => ({songs: results[0], artists: results[1]}))
-    .then(o => {
-      nav[0].number = o.songs.length;
-      nav[1].number = o.artists.length;
-      nav[2].number = this.songs.filter(s => s.favorite === true).length;
-      nav[3].number = this.artists.filter(a => a.favorite === true).length;
-    })
-    .then(() => this.render());
-  }
-
-  artist(artist) {
-    return wire(artist)`
-    <div class="artist">
-      <div class="left">
-        <h2>${artist.firstname} ${artist.lastname}</h2>
-        <div class="the-dash">
-          ${artist.birth.toLocaleString('en', {year: 'numeric', month: '2-digit', day: 'numeric'})} -
-          ${artist.death.toLocaleString('en', {year: 'numeric', month: '2-digit', day: 'numeric'})}
-        </div>
-        <div class="country">${artist.country}</div>
-        <div class="likes">
-          <button name="artist-like" uid="${artist.uid}" onclick="${this}">
-            <img src="../src/thumbs-up-right.svg"></img>
-            ${artist.likes}
-          </button>
-          <button name="artist-dislike" uid="${artist.uid}" onclick="${this}">
-            <img src="../src/thumbs-down-right.svg"></img>
-            ${artist.dislikes}
-          </button>
-          <button uid="${artist.uid}" name="artist-favorite" onclick="${this}">
-            <img class="${artist.favorite === true ? '' : 'hidden'}" src="../src/favorite.selected.svg"></img>
-            <img class="${artist.favorite !== true ? '' : 'hidden'}" src="../src/favorite.unselected.svg"></img>
-          </button>
-        </div>
-      </div>
-      <div class="right">
-        <img src="${artist.picture}"></img>
-      </div>
-    </div>
-    `;
+    return Promise.all([db.get('songs'), db.get('artists')])
+      .then(results => ({ songs: results[0], artists: results[1] }))
+      .then(o => {
+        nav[0].number = o.songs.length;
+        nav[1].number = o.artists.length;
+        nav[2].number = this.songs.filter(s => s.favorite === true).length;
+        nav[3].number = this.artists.filter(a => a.favorite === true).length;
+      })
+      .then(() => this.render());
   }
 
   track(song) {
-    return wire(song)`
+    return html`
     <div class="track">
       <div class="left">
         <h2>${song.name}</h2>
         <div class="tagline">${song.tagline}</div>
         <div class="artist">${song.artist.firstname} ${song.artist.lastname}</div>
-        <div class="released">${song.releaseDate.toLocaleString('en', {year: 'numeric', month: '2-digit', day: 'numeric'})}</div>
+        <div class="released">${song.releaseDate.toLocaleString('en', { year: 'numeric', month: '2-digit', day: 'numeric' })}</div>
         <div class="label">${song.label}</div>
         <div class="likes">
-          <button name="song-like" uid="${song.uid}" onclick="${this}">
+          <button name="song-like" uid="${song.uid}" onclick="${this.like.bind(this, song)}">
             <img src="../src/thumbs-up-right.svg"></img>
             ${song.likes}
           </button>
-          <button name="song-dislike" uid="${song.uid}" onclick="${this}">
+          <button name="song-dislike" uid="${song.uid}" onclick="${this.dislike.bind(this, song)}">
             <img src="../src/thumbs-down-right.svg"></img>
             ${song.dislikes}
           </button>
-          <button uid="${song.uid}" name="song-favorite" onclick="${this}">
-            <img class="${song.favorite === true ? '' : 'hidden'}" src="../src/favorite.selected.svg"></img>
-            <img class="${song.favorite !== true ? '' : 'hidden'}" src="../src/favorite.unselected.svg"></img>
+          <button uid="${song.uid}" name="song-favorite" onclick="${this.toggleFavorite.bind(this, song)}">
+            ${song.favorite === true ? html`
+              <img src="../src/favorite.selected.svg"></img>
+            ` : html`
+              <img src="../src/favorite.unselected.svg"></img>
+            `}
           </button>
         </div>
       </div>
@@ -196,21 +210,11 @@ class SongMgr extends HTMLElement {
     `;
   }
 
-  render() {
-    hyper(this.shadowRoot)`
-    <style>${css}</style>
-    <nav>
-    ${nav.map(n => wire()`
-      <button class="${n.active ? 'active nav' : 'nav'}" name="${n.id}" id="${n.id}" onclick="${this}">${n.name} (${n.number})</button>
-    `)}
-    </nav>
-    <section id="tracks" class="${this.activeType() === 'tracks' ? '' : 'hidden'}">
-      ${Array.isArray(this.songs) ? this.songs.map(song => this.track(song)) : ''}
-    </section>
-    <section id="artists" class="${this.activeType() === 'artists' ? '' : 'hidden'}">
-      ${Array.isArray(this.artists) ? this.artists.map(artist => this.artist(artist)) : ''}
-    </section>
-    `;
+  toggleFavorite(thing) {
+    thing.favorite = !thing.favorite;
+    this.syncNav();
+    this.render();
+    this.save(thing);
   }
 
   get artists() {
