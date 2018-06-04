@@ -1,13 +1,15 @@
 song-mgr
 ========
 
-This a simple app consisting on one native web component. It generates some song data (750 songs) and some artist (50) data. The data is persisted using [localforage](https://github.com/localForage/localForage).
+This a simple app consisting on one native web component. Its primary purpose is to use hyperHTML as a template tag literal library to create/update DOM and capture events. The app is developed around the concept of a simple song manager, with tracks and artists. To do so, it generates some bogus song data (750 songs) and some bogus artist (50) data. The data is persisted using [localforage](https://github.com/localForage/localForage). If you wish to clear the data, delete the localforage database under IndexDB.
 
 The master *branch* uses [hyperHTML](https://viperhtml.js.org/hyperhtml/documentation/).
 
 Other branches of interest include the *wire-ids* branch which splits the artists and songs rendering template string literals into functions, and the *lit-html* branch which ports the *wire-ids* branch to [lit-html](https://polymer.github.io/lit-html/).
 
 # Installation and Use
+
+Note the app uses [rollup](https://rollupjs.org/guide/en) for bundling. The bundles is an 'es' bundle so it won't run in all browsers. The rollup config and the demo could be modified to allow it to run in browsers supporting the v1 web components spec, either directly or through polyfills. 
 
 Clone the app using git. ```git clone https://github.com/robhicks/song-mgr.git```.
 
