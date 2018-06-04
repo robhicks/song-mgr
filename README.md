@@ -9,7 +9,7 @@ Other branches of interest include the *wire-ids* branch which splits the artist
 
 # Installation and Use
 
-Note the app uses [rollup](https://rollupjs.org/guide/en) for bundling. The bundles is an 'es' bundle so it won't run in all browsers. The rollup config and the demo could be modified to allow it to run in browsers supporting the v1 web components spec, either directly or through polyfills. 
+Note the app uses [rollup](https://rollupjs.org/guide/en) for bundling. The bundles is an 'es' bundle so it won't run in all browsers. The rollup config and the demo could be modified to allow it to run in browsers supporting the v1 web components spec, either directly or through polyfills.
 
 Clone the app using git. ```git clone https://github.com/robhicks/song-mgr.git```.
 
@@ -18,4 +18,4 @@ Change to the directory *song-mgr* and using npm or yarn and NodeJs 8.x or great
 
 Then run ```npm run dev``` and point your browser to ```localhost:5005```.
 
-Play around with the other branches. In doing so, you see that the lit-html branch is noticeably faster in liking, disliking and favoriting tracks and artists.
+Play around with the other branches. In doing so, you'll see that the lit-html branch is noticeably faster in liking, disliking and favoriting tracks and artists. It is not any faster in switching between tracks and artists.
