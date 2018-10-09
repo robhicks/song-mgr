@@ -18,4 +18,4 @@ Change to the directory *song-mgr* and using npm or yarn and NodeJs 8.x or great
 
 Then run ```npm run dev``` and point your browser to ```localhost:5005```.
 
-Play around with the other branches. In doing so, you'll see that the lit-html branch is noticeably faster in liking, disliking and favoriting tracks and artists. It is not any faster in switching between tracks and artists.
+Play around with the other branches. In doing so, you'll see that the lit-html branch is noticeably faster in liking, unliking and favoriting tracks and artists. It doesn't appear to be any faster in switching between tracks and artists.
