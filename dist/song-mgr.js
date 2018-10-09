@@ -3590,7 +3590,6 @@ const removeNodes = (container, startNode, endNode = null) => {
         node = n;
     }
 };
-//# sourceMappingURL=lit-html.js.map
 
 /**
  * @license
@@ -3730,7 +3729,6 @@ class EventPart {
         }
     }
 }
-//# sourceMappingURL=lit-extended.js.map
 
 class SongMgr extends HTMLElement {
   constructor() {
