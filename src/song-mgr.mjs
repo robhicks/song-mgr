@@ -134,6 +134,7 @@ class SongMgr extends HTMLElement {
   }
 
   render() {
+    console.time('render');
     hyper(this.shadowRoot)`
     <style>${css}</style>
     <nav>
@@ -203,6 +204,7 @@ class SongMgr extends HTMLElement {
       `) : ''}
     </section>
     `;
+    console.timeEnd('render');
   }
 
   get artists() {
