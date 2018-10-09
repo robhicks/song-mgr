@@ -1,7 +1,5 @@
 import { getArtist, getTrack } from './getData.mjs';
 
-const {bind, hyper, wire} = hyperHTML;
-
 class SongTrack extends HTMLElement {
   constructor() {
     super();

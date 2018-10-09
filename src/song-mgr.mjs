@@ -117,6 +117,7 @@ class SongMgr extends HTMLElement {
   }
 
   render() {
+    console.time('render');
     const template = html`
     <style>${css}</style>
     <nav>
@@ -139,6 +140,7 @@ class SongMgr extends HTMLElement {
     }
     `;
     render(template, this.shadowRoot);
+    console.timeEnd('render');
   }
 
   async syncArtists() {

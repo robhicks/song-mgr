@@ -2967,7 +2967,7 @@ async function getSongs() {
   return songs;
 }
 
-var css = ":host {\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  background-color: #fff;\n  border: 1px solid #ccc;\n  font-family: sans-serif;\n}\nh2 {\n  font-size: 1.5em;\n  font-weight: 400;\n  color: #333;\n  font-style: italic;\n}\nnav {\n  display: flex;\n  height: 42px;\n  align-items: center;\n  background-color: #eaeaea;\n}\nnav button {\n  display: flex;\n  flex: 1;\n  border: 0;\n  background: transparent;\n  font-size: 1.1em;\n  padding: 0 12px;\n  height: inherit;\n  color: #308ad7;\n  cursor: pointer;\n  outline: none;\n}\nnav button.active {\n  background-color: #fff;\n  color: #333;\n}\nsection {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  overflow-x: hidden;\n  overflow-y: auto;\n  padding: 12px;\n}\nsection#tracks .track {\n  display: flex;\n  min-height: 248px;\n  padding: 12px;\n}\nsection#tracks .track:nth-child(even) {\n  background: #efefef;\n}\nsection#tracks .track .left,\nsection#tracks .track .right {\n  display: flex;\n  flex-direction: column;\n}\nsection#tracks .track .left {\n  flex: 0.75;\n}\nsection#tracks .track .right {\n  flex: 0.25;\n}\nsection#tracks .artist {\n  padding: 4px 0;\n  font-size: 1.25em;\n  font-style: italic;\n}\nsection#tracks .label {\n  font-size: 1em;\n  font-family: serif;\n  font-weight: bold;\npadding\n}\nsection#artists .artist {\n  display: flex;\n  min-height: 248px;\n  padding: 12px;\n}\nsection#artists .artist:nth-child(even) {\n  background: #efefef;\n}\nsection#artists .artist .left,\nsection#artists .artist .right {\n  display: flex;\n  flex-direction: column;\n}\nsection#artists .artist .left {\n  flex: 0.75;\n}\nsection#artists .artist .right {\n  flex: 0.25;\n}\nsection#artists .artist .right img {\n  width: 300px;\n  height: auto;\n}\n.likes {\n  margin-top: 16px;\n}\n.likes button {\n  display: inline-flex;\n  background: transparent;\n  border: 0;\n  outline: none;\n  align-items: center;\n  cursor: pointer;\n}\n.likes button img {\n  height: 16px;\n  width: 16px;\n  margin-right: 12px;\n}\n.hidden {\n  display: none !important;\n}\n"
+var css = ":host {\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  background-color: #fff;\n  border: 1px solid #ccc;\n  font-family: sans-serif;\n}\nh2 {\n  font-size: 1.5em;\n  font-weight: 400;\n  color: #333;\n  font-style: italic;\n}\nnav {\n  display: flex;\n  height: 42px;\n  align-items: center;\n  background-color: #eaeaea;\n}\nnav button {\n  display: flex;\n  flex: 1;\n  border: 0;\n  background: transparent;\n  font-size: 1.1em;\n  padding: 0 12px;\n  height: inherit;\n  color: #308ad7;\n  cursor: pointer;\n  outline: none;\n}\nnav button.active {\n  background-color: #fff;\n  color: #333;\n}\nsection {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  overflow-x: hidden;\n  overflow-y: auto;\n  padding: 12px;\n}\nsection#tracks .track {\n  display: flex;\n  min-height: 248px;\n  padding: 12px;\n}\nsection#tracks .track:nth-child(even) {\n  background: #efefef;\n}\nsection#tracks .track .left,\nsection#tracks .track .right {\n  display: flex;\n  flex-direction: column;\n}\nsection#tracks .track .left {\n  flex: 0.75;\n}\nsection#tracks .track .right {\n  flex: 0.25;\n}\nsection#tracks .artist {\n  padding: 4px 0;\n  font-size: 1.25em;\n  font-style: italic;\n}\nsection#tracks .label {\n  font-size: 1em;\n  font-family: serif;\n  font-weight: bold;\npadding\n}\nsection#artists .artist {\n  display: flex;\n  min-height: 248px;\n  padding: 12px;\n}\nsection#artists .artist:nth-child(even) {\n  background: #efefef;\n}\nsection#artists .artist .left,\nsection#artists .artist .right {\n  display: flex;\n  flex-direction: column;\n}\nsection#artists .artist .left {\n  flex: 0.75;\n}\nsection#artists .artist .right {\n  flex: 0.25;\n}\nsection#artists .artist .right img {\n  width: 300px;\n  height: auto;\n}\n.likes {\n  margin-top: 16px;\n}\n.likes button {\n  display: inline-flex;\n  background: transparent;\n  border: 0;\n  outline: none;\n  align-items: center;\n  cursor: pointer;\n}\n.likes button img {\n  height: 16px;\n  width: 16px;\n  margin-right: 12px;\n}\n.hidden {\n  display: none !important;\n}\n";
 
 var nav = [
   {
@@ -3102,7 +3102,7 @@ function render(result, container, templateFactory = defaultTemplateFactory) {
  */
 const marker = `{{lit-${String(Math.random()).slice(2)}}}`;
 /**
- * An expression marker used text-posisitions, not attribute positions,
+ * An expression marker used text-positions, not attribute positions,
  * in template.
  */
 const nodeMarker = `<!--${marker}-->`;
@@ -3170,6 +3170,7 @@ class TemplatePart {
         this.strings = strings;
     }
 }
+const isTemplatePartActive = (part) => part.index !== -1;
 /**
  * An updateable Template that tracks the location of dynamic parts.
  */
@@ -3210,7 +3211,7 @@ class Template {
                 }
                 while (count-- > 0) {
                     // Get the template literal section leading up to the first
-                    // expression in this attribute attribute
+                    // expression in this attribute
                     const stringForPart = result.strings[partIndex];
                     // Find the attribute name
                     const attributeNameInPart = lastAttributeNameRegex.exec(stringForPart)[1];
@@ -3300,7 +3301,7 @@ const getValue = (part, value) => {
     // so we convert it to undefined
     if (isDirective(value)) {
         value = value(part);
-        return directiveValue;
+        return noChange;
     }
     return value === null ? undefined : value;
 };
@@ -3309,7 +3310,7 @@ const isDirective = (o) => typeof o === 'function' && o.__litDirective === true;
  * A sentinel value that signals that a value was handled by a directive and
  * should not be written to the DOM.
  */
-const directiveValue = {};
+const noChange = {};
 const isPrimitiveValue = (value) => value === null ||
     !(typeof value === 'object' || typeof value === 'function');
 class AttributePart {
@@ -3328,7 +3329,7 @@ class AttributePart {
         for (let i = 0; i < l; i++) {
             text += strings[i];
             const v = getValue(this, values[startIndex + i]);
-            if (v && v !== directiveValue &&
+            if (v && v !== noChange &&
                 (Array.isArray(v) || typeof v !== 'string' && v[Symbol.iterator])) {
                 for (const t of v) {
                     // TODO: we need to recursively call getValue into iterables...
@@ -3367,7 +3368,7 @@ class AttributePart {
         else {
             value = this._interpolate(values, startIndex);
         }
-        if (value !== directiveValue) {
+        if (value !== noChange) {
             this.element.setAttribute(this.name, value);
         }
         this._previousValues = values;
@@ -3382,7 +3383,7 @@ class NodePart {
     }
     setValue(value) {
         value = getValue(this, value);
-        if (value === directiveValue) {
+        if (value === noChange) {
             return;
         }
         if (isPrimitiveValue(value)) {
@@ -3536,7 +3537,10 @@ class TemplateInstance {
     update(values) {
         let valueIndex = 0;
         for (const part of this._parts) {
-            if (part.size === undefined) {
+            if (!part) {
+                valueIndex++;
+            }
+            else if (part.size === undefined) {
                 part.setValue(values[valueIndex]);
                 valueIndex++;
             }
@@ -3547,7 +3551,10 @@ class TemplateInstance {
         }
     }
     _clone() {
-        const fragment = document.importNode(this.template.element.content, true);
+        // Clone the node, rather than importing it, to keep the fragment in the
+        // template's document. This leaves the fragment inert so custom elements
+        // won't upgrade until after the main document adopts the node.
+        const fragment = this.template.element.content.cloneNode(true);
         const parts = this.template.parts;
         if (parts.length > 0) {
             // Edge needs all 4 parameters present; IE11 needs 3rd parameter to be
@@ -3557,11 +3564,15 @@ class TemplateInstance {
             let index = -1;
             for (let i = 0; i < parts.length; i++) {
                 const part = parts[i];
-                while (index < part.index) {
-                    index++;
-                    walker.nextNode();
+                const partActive = isTemplatePartActive(part);
+                // An inactive part has no coresponding Template node.
+                if (partActive) {
+                    while (index < part.index) {
+                        index++;
+                        walker.nextNode();
+                    }
                 }
-                this._parts.push(this._partCallback(this, part, walker.currentNode));
+                this._parts.push(partActive ? this._partCallback(this, part, walker.currentNode) : undefined);
             }
         }
         return fragment;
@@ -3654,7 +3665,7 @@ class BooleanAttributePart extends AttributePart {
         const s = this.strings;
         if (s.length === 2 && s[0] === '' && s[1] === '') {
             const value = getValue(this, values[startIndex]);
-            if (value === directiveValue) {
+            if (value === noChange) {
                 return;
             }
             if (value) {
@@ -3685,7 +3696,7 @@ class PropertyPart extends AttributePart {
             // Interpolation, so interpolate
             value = this._interpolate(values, startIndex);
         }
-        if (value !== directiveValue) {
+        if (value !== noChange) {
             this.element[this.name] = value;
         }
         this._previousValues = values;
@@ -3833,6 +3844,7 @@ class SongMgr extends HTMLElement {
   }
 
   render() {
+    console.time('render');
     const template = html$1`
     <style>${css}</style>
     <nav>
@@ -3855,6 +3867,7 @@ class SongMgr extends HTMLElement {
     }
     `;
     render(template, this.shadowRoot);
+    console.timeEnd('render');
   }
 
   async syncArtists() {
